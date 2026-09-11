@@ -52,6 +52,8 @@ jobs:
           marker = '\n  assets:\n'
           if marker in text:
               text = text.split(marker, 1)[0].rstrip() + '\n'
+          # Upgrade legacy file_picker that still uses removed Android v1 embedding.
+          text = text.replace('file_picker: ^6.1.1', 'file_picker: ^11.0.3')
           p.write_text(text)
 
           # Flutter stable compatibility: CardTheme -> CardThemeData.
