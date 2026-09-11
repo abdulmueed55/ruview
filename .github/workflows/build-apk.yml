@@ -39,20 +39,57 @@ jobs:
           tar -xJf source.tar.xz -C app
           test -f app/pubspec.yaml
           test -f app/lib/main.dart
-          echo "Original project restored successfully"
 
-      - name: Remove unavailable bundled font declarations
+      - name: Patch missing assets and source build errors
         shell: bash
         run: |
           python3 - <<'PY'
           from pathlib import Path
+
+          # The supplied ZIP references font/assets files that are not present.
           p = Path('app/pubspec.yaml')
           text = p.read_text()
           marker = '\n  assets:\n'
           if marker in text:
               text = text.split(marker, 1)[0].rstrip() + '\n'
           p.write_text(text)
-          print(p.read_text())
+
+          # Flutter stable compatibility: CardTheme -> CardThemeData.
+          p = Path('app/lib/core/theme/app_theme.dart')
+          text = p.read_text().replace('cardTheme: CardTheme(', 'cardTheme: CardThemeData(')
+          p.write_text(text)
+
+          # Fix invalid filter parameter in the supplied source.
+          p = Path('app/lib/data/repositories/question_repository.dart')
+          text = p.read_text().replace(
+              '      chapterId: null,\n      questionType: current.questionType,',
+              '      chapterIds: [current.chapterId],\n      questionType: current.questionType,'
+          )
+          p.write_text(text)
+
+          # Fix malformed nested map literals in test serialization.
+          p = Path('app/lib/data/repositories/test_repository.dart')
+          text = p.read_text()
+          text = text.replace("'sections': test.sections.map((s) => {\n        return {", "'sections': test.sections.map((s) => {")
+          text = text.replace("'questions': s.questions.map((tq) => {\n            return {", "'questions': s.questions.map((tq) => {")
+          text = text.replace(
+              "              'override_marks': tq.overrideMarks,\n            };\n          }).toList(),\n        };\n      }).toList(),",
+              "              'override_marks': tq.overrideMarks,\n            }).toList(),\n        }).toList(),"
+          )
+          p.write_text(text)
+
+          # Null-safe Urdu attempt note handling.
+          p = Path('app/lib/features/paper_editor/services/pdf_service.dart')
+          text = p.read_text()
+          text = text.replace(
+              'if (pattern.attemptNote != null || pattern.attemptNoteUrdu.isNotEmpty) {',
+              "if ((pattern.attemptNote?.isNotEmpty ?? false) || (pattern.attemptNoteUrdu?.isNotEmpty ?? false)) {"
+          )
+          text = text.replace(
+              '? (pattern.attemptNoteUrdu.isNotEmpty ? pattern.attemptNoteUrdu : pattern.attemptNote)',
+              '? ((pattern.attemptNoteUrdu?.isNotEmpty ?? false) ? pattern.attemptNoteUrdu : pattern.attemptNote)'
+          )
+          p.write_text(text)
           PY
 
       - name: Generate Android project scaffold
