@@ -121,6 +121,13 @@ jobs:
           grep -q "Study Content Library" app/lib/features/dashboard/screens/dashboard_screen.dart
           grep -q "Selected Topics" app/lib/features/curriculum/screens/curriculum_home_screen.dart
 
+      - name: Apply Flutter theme compatibility fix
+        shell: bash
+        run: |
+          base64 -d source_xz/theme_fix.b64 > theme_fix.tar.xz
+          tar -xJf theme_fix.tar.xz -C app
+          test -f app/lib/core/theme/app_theme.dart
+
       - name: Generate Android project scaffold
         working-directory: app
         run: flutter create --platforms=android --org com.punjabtestgenerator .
