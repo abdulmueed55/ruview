@@ -45,7 +45,6 @@ jobs:
         run: |
           python3 - <<'PY'
           from pathlib import Path
-
           p = Path('app/pubspec.yaml')
           text = p.read_text()
           marker = '\n  assets:\n'
@@ -128,11 +127,11 @@ jobs:
           tar -xJf theme_fix.tar.xz -C app
           test -f app/lib/core/theme/app_theme.dart
 
-      - name: Generate Android project scaffold
+      - name: Generate fresh Android package
         working-directory: app
-        run: flutter create --platforms=android --org com.punjabtestgenerator .
+        run: flutter create --platforms=android --org com.ptgfresh2026 .
 
-      - name: Force modern Android compile SDK
+      - name: Configure fresh identity and modern SDK
         shell: bash
         run: |
           python3 - <<'PY'
@@ -142,6 +141,11 @@ jobs:
           text = text.replace('compileSdk = flutter.compileSdkVersion', 'compileSdk = 36')
           text = text.replace('targetSdk = flutter.targetSdkVersion', 'targetSdk = 35')
           p.write_text(text)
+
+          m = Path('app/android/app/src/main/AndroidManifest.xml')
+          text = m.read_text()
+          text = text.replace('android:label="punjab_test_generator"', 'android:label="Punjab Test Generator Fresh"')
+          m.write_text(text)
           PY
 
       - name: Install Flutter dependencies
@@ -163,10 +167,10 @@ jobs:
           test -f app/build/app/outputs/flutter-apk/app-arm64-v8a-release.apk
           ls -lh app/build/app/outputs/flutter-apk/app-arm64-v8a-release.apk
 
-      - name: Upload small arm64 APK
+      - name: Upload fresh arm64 APK
         uses: actions/upload-artifact@v4
         with:
-          name: Punjab-Test-Generator-v1.4-polished-arm64
+          name: Punjab-Test-Generator-v1.5-FRESH-arm64
           path: app/build/app/outputs/flutter-apk/app-arm64-v8a-release.apk
           if-no-files-found: error
           retention-days: 30
