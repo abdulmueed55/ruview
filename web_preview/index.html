@@ -1,0 +1,34 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Punjab Test Generator Preview</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <div class="shell">
+    <aside class="sidebar">
+      <div class="brand">
+        <div class="brandmark">PT</div>
+        <div><strong>Punjab Test Generator</strong><span>Online Preview</span></div>
+      </div>
+      <button class="nav active" data-view="library">📚 Study Content</button>
+      <button class="nav" data-view="builder">📝 Test Builder</button>
+      <button class="nav" data-view="sync">🔄 Data Status</button>
+      <div class="sidebar-note">Remote curriculum data<br><b id="versionTag">loading…</b></div>
+    </aside>
+    <main>
+      <header>
+        <div><p class="eyebrow">PUNJAB CURRICULUM</p><h1 id="pageTitle">Study Content Library</h1></div>
+        <div class="header-actions"><span class="status-dot"></span><span id="syncStatus">Connecting…</span><button id="refreshBtn">Sync latest data</button></div>
+      </header>
+      <section id="app"></section>
+    </main>
+  </div>
+  <script src="app.js"></script>
+</body>
+</html>
