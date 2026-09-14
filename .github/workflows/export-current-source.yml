@@ -1,0 +1,97 @@
+name: Export Current Patched Source
+
+on:
+  push:
+    branches: [ main ]
+    paths:
+      - '.github/workflows/export-current-source.yml'
+
+jobs:
+  export:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Reconstruct current source
+        shell: bash
+        run: |
+          set -euxo pipefail
+          mkdir -p app
+          cat source_xz/part_*.b64 > source.b64
+          base64 -d source.b64 > source.tar.xz
+          tar -xJf source.tar.xz -C app
+
+          python3 - <<'PY'
+          from pathlib import Path
+          p = Path('app/pubspec.yaml')
+          text = p.read_text()
+          marker = '\n  assets:\n'
+          if marker in text:
+              text = text.split(marker, 1)[0].rstrip() + '\n'
+          for dep in ['file_picker: ^6.1.1', 'connectivity_plus: ^5.0.2', 'share_plus: ^7.2.1']:
+              text = text.replace('  ' + dep + '\n', '')
+          if 'url_launcher:' not in text:
+              text = text.replace('  http: ^1.2.0\n', '  http: ^1.2.0\n  url_launcher: ^6.3.1\n')
+          p.write_text(text)
+
+          p = Path('app/lib/core/theme/app_theme.dart')
+          text = p.read_text().replace('cardTheme: CardTheme(', 'cardTheme: CardThemeData(')
+          p.write_text(text)
+
+          p = Path('app/lib/data/repositories/question_repository.dart')
+          text = p.read_text().replace(
+              '      chapterId: null,\n      questionType: current.questionType,',
+              '      chapterIds: [current.chapterId],\n      questionType: current.questionType,'
+          )
+          p.write_text(text)
+
+          p = Path('app/lib/data/repositories/test_repository.dart')
+          text = p.read_text()
+          text = text.replace("'sections': test.sections.map((s) => {\n        return {", "'sections': test.sections.map((s) => {")
+          text = text.replace("'questions': s.questions.map((tq) => {\n            return {", "'questions': s.questions.map((tq) => {")
+          text = text.replace(
+              "              'override_marks': tq.overrideMarks,\n            };\n          }).toList(),\n        };\n      }).toList(),",
+              "              'override_marks': tq.overrideMarks,\n            }).toList(),\n        }).toList(),"
+          )
+          p.write_text(text)
+
+          p = Path('app/lib/features/paper_editor/services/pdf_service.dart')
+          text = p.read_text()
+          text = text.replace(
+              'if (pattern.attemptNote != null || pattern.attemptNoteUrdu.isNotEmpty) {',
+              "if ((pattern.attemptNote?.isNotEmpty ?? false) || (pattern.attemptNoteUrdu?.isNotEmpty ?? false)) {"
+          )
+          text = text.replace(
+              '? (pattern.attemptNoteUrdu.isNotEmpty ? pattern.attemptNoteUrdu : pattern.attemptNote)',
+              '? ((pattern.attemptNoteUrdu?.isNotEmpty ?? false) ? pattern.attemptNoteUrdu : pattern.attemptNote)'
+          )
+          p.write_text(text)
+          PY
+
+          cat source_xz/textbook_patch_*.b64 > textbook_patch.b64
+          base64 -d textbook_patch.b64 > textbook_patch.tar.xz
+          tar -xJf textbook_patch.tar.xz -C app
+
+          cat source_xz/hierarchy_patch_*.b64 > hierarchy_patch.b64
+          base64 -d hierarchy_patch.b64 > hierarchy_patch.tar.xz
+          tar -xJf hierarchy_patch.tar.xz -C app
+
+          cat source_xz/class9_real_*.b64 > class9_real.b64
+          base64 -d class9_real.b64 > class9_real.tar.xz
+          tar -xJf class9_real.tar.xz -C app
+
+          cat source_xz/ui_polish_*.b64 > ui_polish.b64
+          base64 -d ui_polish.b64 > ui_polish.tar.xz
+          tar -xJf ui_polish.tar.xz -C app
+
+          base64 -d source_xz/theme_fix.b64 > theme_fix.tar.xz
+          tar -xJf theme_fix.tar.xz -C app
+
+          tar -czf current-patched-source.tar.gz -C app lib pubspec.yaml
+
+      - name: Upload patched source
+        uses: actions/upload-artifact@v4
+        with:
+          name: current-patched-source
+          path: current-patched-source.tar.gz
+          retention-days: 7
