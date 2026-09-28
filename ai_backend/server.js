@@ -85,6 +85,26 @@ SOURCE MATERIAL:
 ${sourceText}`;
 }
 
+app.get('/',(req,res)=>res.type('html').send(`<!doctype html>
+<html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Punjab Test Generator AI API</title>
+<style>
+body{font-family:Inter,Arial,sans-serif;background:#f5f7fb;color:#182033;margin:0;padding:40px}
+.card{max-width:760px;margin:auto;background:#fff;border:1px solid #e4e8f0;border-radius:18px;padding:28px;box-shadow:0 16px 50px rgba(30,50,90,.08)}
+h1{margin:0 0 8px;font-size:28px}.ok{display:inline-block;padding:6px 10px;border-radius:999px;background:#e8f8ef;color:#158a52;font-weight:700;font-size:12px}
+p{color:#667085;line-height:1.6}.links{display:grid;gap:10px;margin-top:22px}.links a{display:block;padding:12px 14px;border:1px solid #e3e8f2;border-radius:12px;text-decoration:none;color:#3659e3;background:#fafbff}
+.meta{margin-top:18px;padding:14px;border-radius:12px;background:#f7f9fc;font-size:13px}
+</style></head><body><div class="card">
+<span class="ok">API LIVE</span>
+<h1>Punjab Test Generator AI API</h1>
+<p>Backend for the Gemini-powered question bank generator.</p>
+<div class="meta"><b>Model:</b> ${MODEL}<br><b>Gemini key configured:</b> ${API_KEY?'Yes':'No'}</div>
+<div class="links">
+<a href="/health">Health Check</a>
+<a href="/stats">Question Bank Stats</a>
+</div>
+</div></body></html>`));
+
 app.get('/health',(req,res)=>res.json({ok:true,model:MODEL,keyConfigured:!!API_KEY}));
 app.get('/stats',async(req,res)=>{
  const bank=await readJson(STORE,[]);
