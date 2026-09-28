@@ -1,0 +1,66 @@
+{
+  "schemaVersion": "1.0",
+  "hierarchy": [
+    "class",
+    "book",
+    "chapter",
+    "topic",
+    "exercise",
+    "question"
+  ],
+  "requiredBookFields": [
+    "id",
+    "title",
+    "grade",
+    "medium",
+    "track",
+    "academicSession",
+    "sourceAuthority",
+    "sourceUrl",
+    "editionLabel",
+    "verificationStatus"
+  ],
+  "requiredChapterFields": [
+    "id",
+    "number",
+    "title",
+    "sourcePage",
+    "verificationStatus"
+  ],
+  "requiredTopicFields": [
+    "id",
+    "title",
+    "sourcePage",
+    "verificationStatus"
+  ],
+  "requiredExerciseFields": [
+    "id",
+    "title",
+    "exerciseType",
+    "sourcePage",
+    "verificationStatus"
+  ],
+  "requiredQuestionFields": [
+    "id",
+    "type",
+    "marks",
+    "prompt",
+    "medium",
+    "sourceType",
+    "sourceRef",
+    "verificationStatus"
+  ],
+  "allowedQuestionTypes": [
+    "MCQ",
+    "Short",
+    "Long",
+    "Numerical",
+    "CRQ",
+    "Practical",
+    "Translation",
+    "Grammar",
+    "Comprehension",
+    "Map/Activity"
+  ],
+  "selectableRule": "verificationStatus must equal verified; generated or inferred records are never selectable"
+}
