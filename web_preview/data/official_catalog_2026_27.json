@@ -1,0 +1,530 @@
+{
+  "version": "2026-09-28",
+  "authority": "Punjab Education Curriculum Training and Assessment Authority (PECTAA)",
+  "authorityUrl": "https://pectaa.edu.pk/curriculum-compliance/",
+  "policy": "Only content explicitly verified against the current PECTAA ebook/curriculum listing or a verified official textbook/assessment document is selectable in the test builder. Generated filler questions are prohibited.",
+  "classes": [
+    {
+      "grade": 8,
+      "books": [
+        {
+          "id": "g8-quran",
+          "title": "Tarjuma-tul-Quran-ul-Majeed",
+          "track": "Compulsory",
+          "inventoryVerified": true,
+          "contentVerification": "pending-textbook-inspection"
+        },
+        {
+          "id": "g8-english",
+          "title": "English",
+          "track": "Compulsory",
+          "inventoryVerified": true,
+          "contentVerification": "pending-textbook-inspection"
+        },
+        {
+          "id": "g8-urdu",
+          "title": "Urdu",
+          "track": "Compulsory",
+          "inventoryVerified": true,
+          "contentVerification": "pending-textbook-inspection"
+        },
+        {
+          "id": "g8-mathematics",
+          "title": "Mathematics",
+          "track": "Compulsory",
+          "inventoryVerified": true,
+          "contentVerification": "pending-textbook-inspection"
+        },
+        {
+          "id": "g8-general-science",
+          "title": "General Science",
+          "track": "Compulsory",
+          "inventoryVerified": true,
+          "contentVerification": "pending-textbook-inspection"
+        },
+        {
+          "id": "g8-computer-science",
+          "title": "Computer Science",
+          "track": "Compulsory",
+          "inventoryVerified": true,
+          "contentVerification": "pending-textbook-inspection"
+        },
+        {
+          "id": "g8-geography",
+          "title": "Geography",
+          "track": "Compulsory",
+          "inventoryVerified": true,
+          "contentVerification": "pending-textbook-inspection"
+        },
+        {
+          "id": "g8-history",
+          "title": "History",
+          "track": "Compulsory",
+          "inventoryVerified": true,
+          "contentVerification": "pending-textbook-inspection"
+        },
+        {
+          "id": "g8-islamiat",
+          "title": "Islamiat",
+          "track": "Compulsory",
+          "inventoryVerified": true,
+          "contentVerification": "pending-textbook-inspection"
+        },
+        {
+          "id": "g8-arabic",
+          "title": "Arabic",
+          "track": "Compulsory",
+          "inventoryVerified": true,
+          "contentVerification": "pending-textbook-inspection"
+        },
+        {
+          "id": "g8-akhlaqiat",
+          "title": "Akhlaqiat (Religious Minorities)",
+          "track": "Alternative",
+          "inventoryVerified": true,
+          "contentVerification": "pending-textbook-inspection"
+        },
+        {
+          "id": "g8-mashi-taleem",
+          "title": "Mashi Taleem",
+          "track": "Compulsory",
+          "inventoryVerified": true,
+          "contentVerification": "pending-textbook-inspection"
+        },
+        {
+          "id": "g8-art-drawing",
+          "title": "Art & Drawing",
+          "track": "Optional",
+          "inventoryVerified": true,
+          "contentVerification": "pending-textbook-inspection"
+        },
+        {
+          "id": "g8-farsi",
+          "title": "Farsi",
+          "track": "Optional",
+          "inventoryVerified": true,
+          "contentVerification": "pending-textbook-inspection"
+        },
+        {
+          "id": "g8-punjabi",
+          "title": "Punjabi",
+          "track": "Optional",
+          "inventoryVerified": true,
+          "contentVerification": "pending-textbook-inspection"
+        },
+        {
+          "id": "g8-zari-taleem",
+          "title": "Zari Taleem",
+          "track": "Optional",
+          "inventoryVerified": true,
+          "contentVerification": "pending-textbook-inspection"
+        },
+        {
+          "id": "g8-itlaqi-barqiat",
+          "title": "Itlaqi Barqiat",
+          "track": "Optional",
+          "inventoryVerified": true,
+          "contentVerification": "pending-textbook-inspection"
+        },
+        {
+          "id": "g8-home-economics",
+          "title": "Home Economics",
+          "track": "Optional",
+          "inventoryVerified": true,
+          "contentVerification": "pending-textbook-inspection"
+        }
+      ]
+    },
+    {
+      "grade": 9,
+      "books": [
+        {
+          "id": "g9-quran",
+          "title": "Tarjuma-tul-Quran-ul-Majeed",
+          "track": "Compulsory",
+          "inventoryVerified": true,
+          "contentVerification": "pending-textbook-inspection"
+        },
+        {
+          "id": "g9-islamiat",
+          "title": "Islamiat",
+          "track": "Compulsory",
+          "inventoryVerified": true,
+          "contentVerification": "pending-textbook-inspection"
+        },
+        {
+          "id": "g9-urdu",
+          "title": "Urdu",
+          "track": "Compulsory",
+          "inventoryVerified": true,
+          "contentVerification": "pending-textbook-inspection"
+        },
+        {
+          "id": "g9-english",
+          "title": "English",
+          "track": "Compulsory",
+          "inventoryVerified": true,
+          "contentVerification": "pending-textbook-inspection"
+        },
+        {
+          "id": "g9-mathematics",
+          "title": "Mathematics",
+          "track": "Compulsory",
+          "inventoryVerified": true,
+          "contentVerification": "pending-textbook-inspection"
+        },
+        {
+          "id": "g9-physics",
+          "title": "Physics",
+          "track": "Science",
+          "inventoryVerified": true,
+          "contentVerification": "pending-textbook-inspection"
+        },
+        {
+          "id": "g9-chemistry",
+          "title": "Chemistry",
+          "track": "Science",
+          "inventoryVerified": true,
+          "contentVerification": "pending-textbook-inspection"
+        },
+        {
+          "id": "g9-biology",
+          "title": "Biology",
+          "track": "Science",
+          "inventoryVerified": true,
+          "contentVerification": "pending-textbook-inspection"
+        },
+        {
+          "id": "g9-computer-science-entrepreneurship",
+          "title": "Computer Science & Entrepreneurship",
+          "track": "Science",
+          "inventoryVerified": true,
+          "contentVerification": "pending-textbook-inspection"
+        },
+        {
+          "id": "g9-akhlaqiat",
+          "title": "Akhlaqiat (Religious Minorities)",
+          "track": "Alternative",
+          "inventoryVerified": true,
+          "contentVerification": "pending-textbook-inspection"
+        }
+      ]
+    },
+    {
+      "grade": 10,
+      "books": [
+        {
+          "id": "g10-quran",
+          "title": "Tarjuma-tul-Quran-ul-Majeed",
+          "track": "Compulsory",
+          "inventoryVerified": true,
+          "contentVerification": "pending-textbook-inspection"
+        },
+        {
+          "id": "g10-islamiat",
+          "title": "Islamiat",
+          "track": "Compulsory",
+          "inventoryVerified": true,
+          "contentVerification": "pending-textbook-inspection"
+        },
+        {
+          "id": "g10-english",
+          "title": "English",
+          "track": "Compulsory",
+          "inventoryVerified": true,
+          "contentVerification": "pending-textbook-inspection"
+        },
+        {
+          "id": "g10-urdu",
+          "title": "Urdu",
+          "track": "Compulsory",
+          "inventoryVerified": true,
+          "contentVerification": "pending-textbook-inspection"
+        },
+        {
+          "id": "g10-mathematics",
+          "title": "Mathematics",
+          "track": "Compulsory",
+          "inventoryVerified": true,
+          "contentVerification": "pending-textbook-inspection"
+        },
+        {
+          "id": "g10-pakistan-studies",
+          "title": "Pakistan Studies / Mutalia Pakistan",
+          "track": "Compulsory",
+          "inventoryVerified": true,
+          "contentVerification": "pending-textbook-inspection"
+        },
+        {
+          "id": "g10-physics",
+          "title": "Physics",
+          "track": "Science",
+          "inventoryVerified": true,
+          "contentVerification": "pending-textbook-inspection"
+        },
+        {
+          "id": "g10-chemistry",
+          "title": "Chemistry",
+          "track": "Science",
+          "inventoryVerified": true,
+          "contentVerification": "pending-textbook-inspection"
+        },
+        {
+          "id": "g10-biology",
+          "title": "Biology",
+          "track": "Science",
+          "inventoryVerified": true,
+          "contentVerification": "pending-textbook-inspection"
+        },
+        {
+          "id": "g10-computer-science",
+          "title": "Computer Science",
+          "track": "Science",
+          "inventoryVerified": true,
+          "contentVerification": "pending-textbook-inspection"
+        },
+        {
+          "id": "g10-akhlaqiat",
+          "title": "Akhlaqiat (Religious Minorities)",
+          "track": "Alternative",
+          "inventoryVerified": true,
+          "contentVerification": "pending-textbook-inspection"
+        }
+      ]
+    },
+    {
+      "grade": 11,
+      "books": [
+        {
+          "id": "g11-quran",
+          "title": "Tarjuma-tul-Quran-ul-Majeed",
+          "track": "Compulsory",
+          "inventoryVerified": true,
+          "contentVerification": "pending-textbook-inspection"
+        },
+        {
+          "id": "g11-islamiat",
+          "title": "Islamiat",
+          "track": "Compulsory",
+          "inventoryVerified": true,
+          "contentVerification": "pending-textbook-inspection"
+        },
+        {
+          "id": "g11-urdu",
+          "title": "Urdu",
+          "track": "Compulsory",
+          "inventoryVerified": true,
+          "contentVerification": "pending-textbook-inspection"
+        },
+        {
+          "id": "g11-english",
+          "title": "English",
+          "track": "Compulsory",
+          "inventoryVerified": true,
+          "contentVerification": "pending-textbook-inspection"
+        },
+        {
+          "id": "g11-physics",
+          "title": "Physics",
+          "track": "Science",
+          "inventoryVerified": true,
+          "contentVerification": "pending-textbook-inspection"
+        },
+        {
+          "id": "g11-chemistry",
+          "title": "Chemistry",
+          "track": "Science",
+          "inventoryVerified": true,
+          "contentVerification": "pending-textbook-inspection"
+        },
+        {
+          "id": "g11-biology",
+          "title": "Biology",
+          "track": "Science",
+          "inventoryVerified": true,
+          "contentVerification": "pending-textbook-inspection"
+        },
+        {
+          "id": "g11-mathematics",
+          "title": "Mathematics",
+          "track": "Science",
+          "inventoryVerified": true,
+          "contentVerification": "pending-textbook-inspection"
+        },
+        {
+          "id": "g11-computer-science",
+          "title": "Computer Science",
+          "track": "Science",
+          "inventoryVerified": true,
+          "contentVerification": "pending-textbook-inspection"
+        },
+        {
+          "id": "g11-statistics",
+          "title": "Statistics",
+          "track": "Elective",
+          "inventoryVerified": true,
+          "contentVerification": "pending-textbook-inspection"
+        },
+        {
+          "id": "g11-economics",
+          "title": "Economics",
+          "track": "Elective",
+          "inventoryVerified": true,
+          "contentVerification": "pending-textbook-inspection"
+        },
+        {
+          "id": "g11-civics",
+          "title": "Civics",
+          "track": "Arts",
+          "inventoryVerified": true,
+          "contentVerification": "pending-textbook-inspection"
+        },
+        {
+          "id": "g11-education",
+          "title": "Education / Ilm-ul-Taleem",
+          "track": "Arts",
+          "inventoryVerified": true,
+          "contentVerification": "pending-textbook-inspection"
+        },
+        {
+          "id": "g11-farsi",
+          "title": "Farsi",
+          "track": "Arts",
+          "inventoryVerified": true,
+          "contentVerification": "pending-textbook-inspection"
+        },
+        {
+          "id": "g11-punjabi",
+          "title": "Punjabi Ikhtiari",
+          "track": "Arts",
+          "inventoryVerified": true,
+          "contentVerification": "pending-textbook-inspection"
+        },
+        {
+          "id": "g11-geography",
+          "title": "Physical Geography",
+          "track": "Arts",
+          "inventoryVerified": true,
+          "contentVerification": "pending-textbook-inspection"
+        }
+      ]
+    },
+    {
+      "grade": 12,
+      "books": [
+        {
+          "id": "g12-quran",
+          "title": "Tarjuma-tul-Quran-ul-Majeed",
+          "track": "Compulsory",
+          "inventoryVerified": true,
+          "contentVerification": "pending-textbook-inspection"
+        },
+        {
+          "id": "g12-urdu",
+          "title": "Urdu",
+          "track": "Compulsory",
+          "inventoryVerified": true,
+          "contentVerification": "pending-textbook-inspection"
+        },
+        {
+          "id": "g12-english",
+          "title": "English",
+          "track": "Compulsory",
+          "inventoryVerified": true,
+          "contentVerification": "pending-textbook-inspection"
+        },
+        {
+          "id": "g12-pakistan-studies",
+          "title": "Pakistan Studies / Mutalia Pakistan",
+          "track": "Compulsory",
+          "inventoryVerified": true,
+          "contentVerification": "pending-textbook-inspection"
+        },
+        {
+          "id": "g12-physics",
+          "title": "Physics",
+          "track": "Science",
+          "inventoryVerified": true,
+          "contentVerification": "pending-textbook-inspection"
+        },
+        {
+          "id": "g12-chemistry",
+          "title": "Chemistry",
+          "track": "Science",
+          "inventoryVerified": true,
+          "contentVerification": "pending-textbook-inspection"
+        },
+        {
+          "id": "g12-biology",
+          "title": "Biology",
+          "track": "Science",
+          "inventoryVerified": true,
+          "contentVerification": "pending-textbook-inspection"
+        },
+        {
+          "id": "g12-mathematics",
+          "title": "Mathematics",
+          "track": "Science",
+          "inventoryVerified": true,
+          "contentVerification": "pending-textbook-inspection"
+        },
+        {
+          "id": "g12-computer-science",
+          "title": "Computer Science",
+          "track": "Science",
+          "inventoryVerified": true,
+          "contentVerification": "pending-textbook-inspection"
+        },
+        {
+          "id": "g12-statistics",
+          "title": "Statistics",
+          "track": "Elective",
+          "inventoryVerified": true,
+          "contentVerification": "pending-textbook-inspection"
+        },
+        {
+          "id": "g12-economics",
+          "title": "Economics",
+          "track": "Elective",
+          "inventoryVerified": true,
+          "contentVerification": "pending-textbook-inspection"
+        },
+        {
+          "id": "g12-civics",
+          "title": "Civics",
+          "track": "Arts",
+          "inventoryVerified": true,
+          "contentVerification": "pending-textbook-inspection"
+        },
+        {
+          "id": "g12-education",
+          "title": "Education / Ilm-ul-Taleem",
+          "track": "Arts",
+          "inventoryVerified": true,
+          "contentVerification": "pending-textbook-inspection"
+        },
+        {
+          "id": "g12-farsi",
+          "title": "Farsi",
+          "track": "Arts",
+          "inventoryVerified": true,
+          "contentVerification": "pending-textbook-inspection"
+        },
+        {
+          "id": "g12-punjabi",
+          "title": "Punjabi Ikhtiari",
+          "track": "Arts",
+          "inventoryVerified": true,
+          "contentVerification": "pending-textbook-inspection"
+        },
+        {
+          "id": "g12-geography",
+          "title": "Human Geography",
+          "track": "Arts",
+          "inventoryVerified": true,
+          "contentVerification": "pending-textbook-inspection"
+        }
+      ]
+    }
+  ]
+}
