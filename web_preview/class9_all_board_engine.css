@@ -1,0 +1,3 @@
+
+.allboard-mcq{font-size:11px;line-height:1.5;padding:7px 0;border-bottom:1px dotted #ddd}.allboard-q{font-size:11px;line-height:1.55;padding:5px 0}.allboard-q span{float:right;font-weight:700}
+@media print{.allboard-q,.allboard-mcq{break-inside:avoid}}
