@@ -4,6 +4,7 @@ import crypto from 'crypto';
 import fs from 'fs/promises';
 import path from 'path';
 import { fileURLToPath } from 'url';
+import pg from 'pg';
 
 const __dirname=path.dirname(fileURLToPath(import.meta.url));
 const app=express();
@@ -15,6 +16,61 @@ const MODEL=process.env.GEMINI_MODEL||'gemini-3.8-flash';
 const API_KEY=process.env.GEMINI_API_KEY||'';
 const STORE=path.join(__dirname,'data','question-bank.json');
 const JOBS=path.join(__dirname,'data','jobs.json');
+const {Pool}=pg;
+let pool=null;
+async function initDb(){
+ if(!process.env.DATABASE_URL)return;
+ try{
+  pool=new Pool({connectionString:process.env.DATABASE_URL,ssl:{rejectUnauthorized:false},max:5,connectionTimeoutMillis:8000});
+  await pool.query(`CREATE TABLE IF NOT EXISTS questions (
+   id text PRIMARY KEY, hash text UNIQUE NOT NULL, grade integer NOT NULL, book_id text NOT NULL, book_title text,
+   chapter_id text NOT NULL, chapter_title text, topic text, exercise text, type text NOT NULL, marks integer NOT NULL DEFAULT 1,
+   difficulty text, question text NOT NULL, answer text NOT NULL, options jsonb, source_ref text, source_excerpt text,
+   confidence numeric, status text NOT NULL DEFAULT 'AI Generated', model text, created_at timestamptz NOT NULL DEFAULT now()
+  ); CREATE INDEX IF NOT EXISTS questions_scope_idx ON questions(grade,book_id,chapter_id,type);
+  CREATE TABLE IF NOT EXISTS generation_jobs (
+   id text PRIMARY KEY, status text NOT NULL, target_count integer NOT NULL, processed integer NOT NULL DEFAULT 0,
+   accepted integer NOT NULL DEFAULT 0, failed integer NOT NULL DEFAULT 0, payload jsonb NOT NULL, error text,
+   created_at timestamptz NOT NULL DEFAULT now(), updated_at timestamptz NOT NULL DEFAULT now()
+  )`);
+  console.log('Postgres question bank ready');
+ }catch(e){console.error('Postgres init failed; using JSON fallback:',e.message);pool=null}
+}
+async function getBank(filters={}){
+ if(!pool){
+  let rows=await readJson(STORE,[]);
+  if(filters.grade)rows=rows.filter(q=>String(q.grade)===String(filters.grade));
+  if(filters.bookId)rows=rows.filter(q=>q.bookId===filters.bookId);
+  if(filters.chapterId)rows=rows.filter(q=>q.chapterId===filters.chapterId);
+  if(filters.type)rows=rows.filter(q=>q.type===filters.type);
+  return rows.slice(0,Math.min(Number(filters.limit)||1000,5000));
+ }
+ const where=[],vals=[];
+ if(filters.grade){vals.push(Number(filters.grade));where.push(`grade=${vals.length}`)}
+ if(filters.bookId){vals.push(filters.bookId);where.push(`book_id=${vals.length}`)}
+ if(filters.chapterId){vals.push(filters.chapterId);where.push(`chapter_id=${vals.length}`)}
+ if(filters.type){vals.push(filters.type);where.push(`type=${vals.length}`)}
+ const limit=Math.min(Number(filters.limit)||1000,5000);vals.push(limit);
+ const r=await pool.query(`SELECT id,grade,book_id AS "bookId",book_title AS "bookTitle",chapter_id AS "chapterId",
+ chapter_title AS "chapterTitle",topic,exercise,type,marks,difficulty,question,question AS text,answer,options,
+ source_ref AS "sourceRef",source_excerpt AS "sourceExcerpt",confidence,status,model,created_at AS "createdAt"
+ FROM questions ${where.length?'WHERE '+where.join(' AND '):''} ORDER BY created_at DESC LIMIT ${vals.length}`,vals);
+ return r.rows;
+}
+async function statsData(){
+ if(!pool){const bank=await readJson(STORE,[]),byType={},byGrade={};for(const q of bank){byType[q.type]=(byType[q.type]||0)+1;byGrade[q.grade]=(byGrade[q.grade]||0)+1}return{total:bank.length,byType,byGrade,target:20000}}
+ const total=(await pool.query('SELECT COUNT(*)::int n FROM questions')).rows[0].n;
+ const t=(await pool.query('SELECT type,COUNT(*)::int n FROM questions GROUP BY type')).rows;
+ const g=(await pool.query('SELECT grade,COUNT(*)::int n FROM questions GROUP BY grade')).rows;
+ return{total,byType:Object.fromEntries(t.map(x=>[x.type,x.n])),byGrade:Object.fromEntries(g.map(x=>[String(x.grade),x.n])),target:20000};
+}
+async function insertRows(rows){
+ if(!rows.length)return 0;
+ if(!pool){const bank=await readJson(STORE,[]),hashes=new Set(bank.map(q=>q.hash||hashQuestion(q))),accepted=[];for(const q of rows){if(hashes.has(q.hash))continue;hashes.add(q.hash);accepted.push(q)}await writeJson(STORE,bank.concat(accepted));return accepted.length}
+ let n=0;for(const q of rows){const r=await pool.query(`INSERT INTO questions(id,hash,grade,book_id,book_title,chapter_id,chapter_title,topic,exercise,type,marks,difficulty,question,answer,options,source_ref,source_excerpt,confidence,status,model)
+ VALUES($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14,$15,$16,$17,$18,'AI Generated',$19) ON CONFLICT(hash) DO NOTHING`,
+ [q.id,q.hash,q.grade,q.bookId,q.bookTitle,q.chapterId,q.chapterTitle,q.topic,q.exercise,q.type,q.marks,q.difficulty,q.question,q.answer,q.options?JSON.stringify(q.options):null,q.sourceRef,q.sourceExcerpt,q.confidence,q.model]);n+=r.rowCount}return n;
+}
 
 async function readJson(file,fallback){try{return JSON.parse(await fs.readFile(file,'utf8'))}catch{return fallback}}
 async function writeJson(file,data){await fs.mkdir(path.dirname(file),{recursive:true});await fs.writeFile(file,JSON.stringify(data,null,2))}
@@ -164,53 +220,77 @@ async function load(){
 </script>
 </body></html>`));
 
-app.get('/health',(req,res)=>res.json({ok:true,model:MODEL,keyConfigured:!!API_KEY}));
-app.get('/stats',async(req,res)=>{
- const bank=await readJson(STORE,[]);
- const byType={};const byGrade={};
- for(const q of bank){byType[q.type]=(byType[q.type]||0)+1;byGrade[q.grade]=(byGrade[q.grade]||0)+1}
- res.json({total:bank.length,byType,byGrade,target:20000});
-});
-app.get('/questions',async(req,res)=>{
- const bank=await readJson(STORE,[]);
- const {grade,bookId,chapterId,type,limit='100'}=req.query;
- let rows=bank;
- if(grade)rows=rows.filter(q=>String(q.grade)===String(grade));
- if(bookId)rows=rows.filter(q=>q.bookId===bookId);
- if(chapterId)rows=rows.filter(q=>q.chapterId===chapterId);
- if(type)rows=rows.filter(q=>q.type===type);
- res.json(rows.slice(0,Math.min(Number(limit)||100,1000)));
-});
+app.get('/health',(req,res)=>res.json({ok:true,model:MODEL,keyConfigured:!!API_KEY,database:!!pool}));
+app.get('/stats',async(req,res)=>{try{res.json(await statsData())}catch(e){res.status(500).json({error:e.message})}});
+app.get('/questions',async(req,res)=>{try{res.json(await getBank(req.query))}catch(e){res.status(500).json({error:e.message})}});
 app.post('/generate',async(req,res)=>{
+ try{
+  const {grade,bookId,bookTitle,chapterId,chapterTitle,topics=[],sourceText='',types=['MCQ','Short','Long'],count=20}=req.body;
+  if(!grade||!bookId||!chapterId||!sourceText)return res.status(400).json({error:'grade, bookId, chapterId and sourceText are required'});
+  const safeCount=Math.max(5,Math.min(Number(count)||20,50));
+  const prompt=buildPrompt({grade,bookId,bookTitle,chapterId,chapterTitle,topics,sourceapp.post('/generate',async(req,res)=>{
  try{
   const {grade,bookId,bookTitle,chapterId,chapterTitle,topics=[],sourceText='',types=['MCQ','Short','Long'],count=20}=req.body;
   if(!grade||!bookId||!chapterId||!sourceText)return res.status(400).json({error:'grade, bookId, chapterId and sourceText are required'});
   const safeCount=Math.max(5,Math.min(Number(count)||20,50));
   const prompt=buildPrompt({grade,bookId,bookTitle,chapterId,chapterTitle,topics,sourceText,types,count:safeCount});
   const out=await callGemini({prompt},safeCount);
-  const bank=await readJson(STORE,[]);
-  const hashes=new Set(bank.map(q=>q.hash||hashQuestion(q)));
-  const accepted=[],rejected=[];
-  for(const raw of out.questions||[]){
-   const q={...raw,grade:Number(grade),bookId,chapterId,chapterTitle:chapterTitle||raw.chapterTitle,createdAt:new Date().toISOString(),model:MODEL};
-   q.hash=hashQuestion(q);
-   if(!validQuestion(q)||q.confidence<0.75||hashes.has(q.hash)){rejected.push(q);continue}
-   hashes.add(q.hash);accepted.push(q);
+  const rows=[];for(const raw of out.questions||[]){
+   const q={...raw,grade:Number(grade),bookId,bookTitle,chapterId,chapterTitle:chapterTitle||raw.chapterTitle,text:raw.question,
+   createdAt:new Date().toISOString(),model:MODEL,status:'AI Generated'};q.hash=hashQuestion(q);q.id='q-'+q.hash.slice(0,24);
+   if(validQuestion(q)&&Number(q.confidence)>=0.75)rows.push(q);
   }
-  await writeJson(STORE,bank.concat(accepted));
-  res.json({accepted:accepted.length,rejected:rejected.length,total:(bank.length+accepted.length),questions:accepted});
+  const accepted=await insertRows(rows);const total=(await statsData()).total;
+  res.json({accepted,rejected:Math.max(0,safeCount-rows.length),total,questions:rows});
  }catch(e){res.status(500).json({error:e.message})}
 });
 app.post('/jobs/plan',async(req,res)=>{
- const {catalog,target=20000}=req.body;
- if(!catalog?.classes)return res.status(400).json({error:'catalog.classes required'});
- const chapters=[];
- for(const cls of catalog.classes)for(const book of cls.books||[])for(const ch of book.chapters||[])chapters.push({grade:cls.grade,bookId:book.id,bookTitle:book.title,chapterId:ch.id,chapterTitle:ch.title,topics:(ch.topics||[]).map(t=>t.title)});
- if(!chapters.length)return res.status(400).json({error:'No chapters supplied'});
- const base=Math.floor(target/chapters.length),rem=target%chapters.length;
- const jobs=chapters.map((c,i)=>({...c,targetCount:base+(i<rem?1:0),status:'planned'}));
- await writeJson(JOBS,jobs);
- res.json({target,chapters:chapters.length,jobs});
+ try{
+  const {catalog,target=20000,types=['MCQ','Short','Long']}=req.body;
+  if(!catalog?.classes)return res.status(400).json({error:'catalog.classes required'});
+  const chapters=[];
+  for(const cls of catalog.classes)for(const book of cls.books||[])for(const ch of book.chapters||[])
+   chapters.push({grade:cls.grade,bookId:book.id,bookTitle:book.title,chapterId:ch.id,chapterTitle:ch.title,
+    topics:(ch.topics||[]).map(t=>typeof t==='string'?t:t.title),sourceText:ch.sourceText||'',types});
+  if(!chapters.length)return res.status(400).json({error:'No chapters supplied'});
+  const totalTarget=Number(target)||20000,base=Math.floor(totalTarget/chapters.length),rem=totalTarget%chapters.length;
+  const jobs=chapters.map((c,i)=>({id:'job-'+crypto.randomUUID(),...c,targetCount:base+(i<rem?1:0),status:c.sourceText?'planned':'blocked_source',processed:0,accepted:0,failed:0}));
+  if(pool)for(const j of jobs)await pool.query('INSERT INTO generation_jobs(id,status,target_count,payload) VALUES($1,$2,$3,$4)',[j.id,j.status,j.targetCount,JSON.stringify(j)]);
+  else await writeJson(JOBS,jobs);
+  res.json({target:totalTarget,chapters:chapters.length,jobs});
+ }catch(e){res.status(500).json({error:e.message})}
 });
-
-app.listen(PORT,()=>console.log('AI Question Bank API listening on',PORT));
+app.get('/jobs',async(req,res)=>{
+ try{
+  if(pool){const r=await pool.query('SELECT id,status,target_count "targetCount",processed,accepted,failed,error,created_at "createdAt",updated_at "updatedAt",payload FROM generation_jobs ORDER BY created_at DESC LIMIT 100');return res.json(r.rows)}
+  res.json(await readJson(JOBS,[]));
+ }catch(e){res.status(500).json({error:e.message})}
+});
+async function updateJob(id,patch){
+ if(pool){const map={status:'status',processed:'processed',accepted:'accepted',failed:'failed',error:'error'},f=[],v=[];for(const[k,x]of Object.entries(patch)){if(!map[k])continue;v.push(x);f.push(map[k]+'=$'+v.length)}if(f.length){v.push(id);await pool.query('UPDATE generation_jobs SET '+f.join(',')+',updated_at=now() WHERE id=$'+v.length,v)}}
+ else{const jobs=await readJson(JOBS,[]),i=jobs.findIndex(j=>j.id===id);if(i>=0){jobs[i]={...jobs[i],...patch,updatedAt:new Date().toISOString()};await writeJson(JOBS,jobs)}}
+}
+async function processJob(job){
+ if(!job.sourceText){await updateJob(job.id,{status:'blocked_source',error:'Source material is required'});return}
+ await updateJob(job.id,{status:'running'});
+ let processed=Number(job.processed)||0,accepted=Number(job.accepted)||0,failed=Number(job.failed)||0,target=Number(job.targetCount)||0;
+ while(processed<target&&failed<3){
+  const take=Math.min(25,target-processed);
+  try{const r=await generateNow(job,take);accepted+=r.accepted;processed+=take;await updateJob(job.id,{status:processed>=target?'completed':'running',processed,accepted,failed})}
+  catch(e){failed++;await updateJob(job.id,{status:failed>=3?'failed':'running',processed,accepted,failed,error:e.message});if(failed<3)await new Promise(r=>setTimeout(r,1500))}
+ }
+}
+async function generateNow(job,count){
+ const {grade,bookId,bookTitle,chapterId,chapterTitle,topics=[],sourceText,types=['MCQ','Short','Long']}=job;
+ const safeCount=Math.max(5,Math.min(Number(count)||20,50));const out=await callGemini({prompt:buildPrompt({grade,bookId,bookTitle,chapterId,chapterTitle,topics,sourceText,types,count:safeCount})},safeCount);
+ const rows=[];for(const raw of out.questions||[]){const q={...raw,grade:Number(grade),bookId,bookTitle,chapterId,chapterTitle:chapterTitle||raw.chapterTitle,text:raw.question,createdAt:new Date().toISOString(),model:MODEL,status:'AI Generated'};q.hash=hashQuestion(q);q.id='q-'+q.hash.slice(0,24);if(validQuestion(q)&&Number(q.confidence)>=0.75)rows.push(q)}
+ return{accepted:await insertRows(rows),questions:rows};
+}
+app.post('/jobs/run',async(req,res)=>{
+ const id=req.body?.jobId;if(!id)return res.status(400).json({error:'jobId required'});let job;
+ if(pool){const r=await pool.query('SELECT id,status,target_count "targetCount",processed,accepted,failed,payload,error FROM generation_jobs WHERE id=$1',[id]);if(!r.rows[0])return res.status(404).json({error:'Job not found'});job={...r.rows[0],...(r.rows[0].payload||{})}}
+ else{job=(await readJson(JOBS,[])).find(x=>x.id===id);if(!job)return res.status(404).json({error:'Job not found'})}
+ if(['running','completed'].includes(job.status))return res.json({ok:true,status:job.status});
+ processJob(job).catch(e=>console.error('job worker',e));res.json({ok:true,status:'started',jobId:id});
+});
+initDb().then(()=>app.listen(PORT,()=>console.log('AI Question Bank API listening on',PORT)));
